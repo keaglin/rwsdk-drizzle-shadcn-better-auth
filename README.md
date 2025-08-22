@@ -4,7 +4,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 
 ## Tech Stack
 
-- **[RWSDK](https://rwsdk.com/)** - React framework for Cloudflare Workers with SSR/RSC support
+- **[RWSDK](https://rwsdk.com/)** - React framework for Cloudflare Workers with SSR and RSC support
 - **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript ORM with D1 database
 - **[Better Auth](https://better-auth.com/)** - Authentication library with session management
 - **[Zod](https://zod.dev/)** - TypeScript-first schema validation
