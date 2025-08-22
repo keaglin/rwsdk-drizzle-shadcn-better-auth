@@ -7,6 +7,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 - **[RWSDK](https://rwsdk.com/)** - React framework for Cloudflare Workers with SSR/RSC support
 - **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript ORM with D1 database
 - **[Better Auth](https://better-auth.com/)** - Authentication library with session management
+- **[Zod](https://zod.dev/)** - TypeScript-first schema validation
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[shadcn/ui](https://ui.shadcn.com)** - Copy-paste React components built on Radix UI and Tailwind
 - **[Vite](https://vitejs.dev/)** - Fast build tool and dev server
@@ -179,7 +180,10 @@ src/
 └── migrations/         # Database migrations (generated)
 
 docs/
-└── auth-cookie-forwarding.md  # Cookie handling guide
+├── auth-cookie-forwarding.md  # Cookie handling guide
+├── validation-guide.md         # Zod validation patterns
+└── adr/
+    └── 001-validation-with-zod.md  # Decision record
 ```
 
 ## Common Patterns
@@ -210,6 +214,33 @@ export async function myAction() {
 }
 ```
 
+### Server Actions with Validation
+
+```typescript
+"use server";
+import { z } from 'zod';
+import { validate } from '@/lib/validation';
+
+const schema = z.object({
+  email: z.string().email(),
+  name: z.string().min(2),
+});
+
+export async function createUser(data: unknown) {
+  // Validate input
+  const validation = validate(schema, data);
+  if (!validation.success) {
+    return { success: false, errors: validation.errors };
+  }
+  
+  // Use validated, typed data
+  const { email, name } = validation.data;
+  
+  // Your logic here...
+  return { success: true, user: { email, name } };
+}
+```
+
 ### Database Queries
 
 ```typescript
@@ -226,6 +257,11 @@ const allUsers = await db.select().from(user);
 - Ensure `BETTER_AUTH_SECRET` is set
 - Check `BA_TRUSTED_ORIGINS` includes your domain
 - See [docs/auth-cookie-forwarding.md](docs/auth-cookie-forwarding.md) for server action cookie handling
+
+### Validation Issues
+- Check schema definitions match your data structure
+- Use `safeParse` for debugging validation errors
+- See [docs/validation-guide.md](docs/validation-guide.md) for patterns and examples
 
 ### Database Issues
 - Run `bun migrate:dev` after schema changes
