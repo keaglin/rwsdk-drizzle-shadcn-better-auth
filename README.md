@@ -1,44 +1,63 @@
-# Standard RedwoodSDK Starter
+# RWSDK + Drizzle + Better Auth Starter
 
-This "standard starter" is the recommended implementation for RedwoodSDK. You get a Typescript project with:
+A modern full-stack starter template featuring server-side rendering, React Server Components, authentication, and database integration on Cloudflare Workers.
 
-- Vite
-- database (Prisma via D1)
-- Session Management (via DurableObjects)
-- Passkey authentication (Webauthn)
-- Storage (via R2)
+## Tech Stack
 
-## Creating your project
+- **[RWSDK](https://rwsdk.com/)** - React framework for Cloudflare Workers with SSR/RSC support
+- **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript ORM with D1 database
+- **[Better Auth](https://better-auth.com/)** - Authentication library with session management
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Vite](https://vitejs.dev/)** - Fast build tool and dev server
+- **[Cloudflare D1](https://developers.cloudflare.com/d1/)** - SQLite database at the edge
 
-```shell
-npx create-rwsdk my-project-name
-cd my-project-name
-npm install
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ and pnpm/npm/bun
+- Cloudflare account (free tier works)
+- Wrangler CLI (`npm install -g wrangler`)
+
+### 1. Clone and Install
+
+```bash
+git clone <your-repo>
+cd rwsdk-drizzle-ba
+pnpm install  # or npm/bun install
 ```
 
-## Running the dev server
+### 2. Environment Setup
 
-```shell
-pnpm run dev
+Copy the example env file and configure:
+
+```bash
+cp .env.example .env
 ```
 
-Point your browser to the URL displayed in the terminal (e.g. `http://localhost:5173/`). You should see a "Hello World" message in your browser.
+Required environment variables:
 
-## Deploying your app
+```env
+# Better Auth Configuration
+BETTER_AUTH_SECRET=           # Generate with: openssl rand -base64 32
+BETTER_AUTH_URL=              # Default: http://localhost:5173
+BA_TRUSTED_ORIGINS=           # Comma-separated list: localhost:5173,your-domain.com
 
-### Wrangler Setup
+# Database (D1)
+CLOUDFLARE_ACCOUNT_ID=    # Cloudflare Account ID
+CLOUDFLARE_DATABASE_ID=   # `d1_databases.database_id` from wrangler.jsonc
+CLOUDFLARE_D1_TOKEN=      # Cloudflare API Token with D1 Permissions
+```
 
-Within your project's `wrangler.jsonc`:
+### 3. Database Setup
 
-- Replace the `__change_me__` placeholders with a name for your application
+Create a D1 database:
 
-- Create a new D1 database:
-
-```shell
+```bash
 npx wrangler d1 create my-project-db
 ```
 
-Copy the database ID provided and paste it into your project's `wrangler.jsonc` file:
+Update `wrangler.jsonc` with the config from wrangler cli. It'll look like this:
 
 ```jsonc
 {
@@ -46,17 +65,182 @@ Copy the database ID provided and paste it into your project's `wrangler.jsonc` 
     {
       "binding": "DB",
       "database_name": "my-project-db",
-      "database_id": "your-database-id",
-    },
-  ],
+      "database_id": "your-database-id" 
+    }
+  ]
 }
 ```
 
-### Authentication Setup
+### 4. Generate Schemas and Run Migrations
 
-For authentication setup and configuration, including optional bot protection, see the [Authentication Documentation](https://docs.rwsdk.com/core/authentication).
+```bash
+# Generate Better Auth schema
+pnpm ba:generate
 
-## Further Reading
+# Generate Drizzle migrations
+pnpm db:generate
 
-- [RedwoodSDK Documentation](https://docs.rwsdk.com/)
+# Apply migrations locally
+pnpm migrate:dev
+```
+
+### 5. Start Development Server
+
+```bash
+pnpm dev
+```
+
+Visit `http://localhost:5173` to see your app running!
+
+## How It Works
+
+### Architecture Overview
+
+```
+┌─────────────┐     ┌──────────────┐     ┌─────────────┐
+│   Browser   │────▶│ RWSDK Worker │────▶│  D1 SQLite  │
+│             │◀────│   (SSR/RSC)  │◀────│  Database   │
+└─────────────┘     └──────────────┘     └─────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │ Better Auth  │
+                    │   Sessions   │
+                    └──────────────┘
+```
+
+### Key Components
+
+#### RWSDK Worker (`src/worker.tsx`)
+- Entry point for all requests
+- Handles routing and middleware
+- Serves the Better Auth API endpoints at `/api/auth/*`
+
+#### Authentication (`src/app/lib/auth.ts`)
+- Better Auth configuration with email/password support
+- Session management with cookies
+- Drizzle adapter for D1 database
+
+#### Database (`src/app/db/`)
+- `index.ts` - Database connection and exports
+- `schema.ts` - Your application schemas
+- `auth-schema.ts` - Auto-generated Better Auth tables
+
+#### Server Actions (`"use server"`)
+- Functions that run on the server
+- Access to `requestInfo` for headers and cookies
+- **Important**: Cannot return Response objects (see [docs/auth-cookie-forwarding.md](docs/auth-cookie-forwarding.md))
+
+## Available Scripts
+
+### Development
+- `pnpm dev` - Start development server with hot reload
+- `pnpm build` - Build for production
+- `pnpm preview` - Preview production build locally
+
+### Database Management
+- `pnpm ba:generate` - Generate Better Auth schema
+- `pnpm db:generate` - Generate Drizzle migrations
+- `pnpm db:studio` - Open Drizzle Studio GUI
+- `pnpm migrate:dev` - Apply migrations locally
+- `pnpm migrate:prd` - Apply migrations to production
+- `pnpm migrate:new` - Generate both auth schema and migrations
+
+### Deployment
+- `pnpm release` - Full production deployment (migrations + build + deploy)
+- `pnpm worker:run <file>` - Run scripts in worker context
+- `pnpm seed` - Seed database with initial data
+
+### Utilities
+- `pnpm clean` - Clean build artifacts
+- `pnpm types` - Type check the project
+- `pnpm check` - Run all checks
+
+## Project Structure
+
+```
+src/
+├── worker.tsx           # Main entry point, routes, middleware
+├── app/
+│   ├── db/
+│   │   ├── index.ts    # Database connection
+│   │   ├── schema.ts   # Your app schemas
+│   │   └── auth-schema.ts # Generated auth tables
+│   ├── lib/
+│   │   └── auth.ts     # Better Auth configuration
+│   ├── pages/          # Page components
+│   │   └── user/
+│   │       ├── Login.tsx     # Login UI component
+│   │       ├── functions.ts  # Server actions
+│   │       └── routes.ts     # User routes
+│   ├── components/     # Reusable UI components
+│   └── interruptors.ts # Route middleware/guards
+├── scripts/           # Utility scripts
+└── migrations/        # Database migrations (generated)
+
+docs/
+└── auth-cookie-forwarding.md  # Cookie handling guide
+```
+
+## Common Patterns
+
+### Protected Routes
+
+Use interruptors to protect routes:
+
+```typescript
+// src/worker.tsx
+route("/protected", [requireAuth, MyProtectedPage])
+```
+
+### Server Actions with Cookies
+
+```typescript
+"use server";
+import { requestInfo } from "rwsdk/worker";
+
+export async function myAction() {
+  const { request, response } = requestInfo;
+  
+  // Set cookies via response.headers
+  response.headers.set('Set-Cookie', 'token=value; Path=/');
+  
+  // Return plain objects (not Response)
+  return { success: true };
+}
+```
+
+### Database Queries
+
+```typescript
+import { db } from "@/app/db";
+import { users } from "@/app/db/schema";
+
+// Query with Drizzle
+const allUsers = await db.select().from(users);
+```
+
+## Troubleshooting
+
+### Session/Cookie Issues
+- Ensure `BETTER_AUTH_SECRET` is set
+- Check `BA_TRUSTED_ORIGINS` includes your domain
+- See [docs/auth-cookie-forwarding.md](docs/auth-cookie-forwarding.md) for server action cookie handling
+
+### Database Issues
+- Run `pnpm migrate:dev` after schema changes
+- Use `pnpm db:studio` to inspect data
+- Check D1 binding in `wrangler.jsonc`
+
+### Build/Deploy Issues
+- Clear cache with `pnpm clean`
+- Ensure all env vars are set in Cloudflare dashboard
+- Check wrangler logs: `wrangler tail`
+
+## Resources
+
+- [RWSDK Documentation](https://docs.rwsdk.com/)
+- [Better Auth Docs](https://better-auth.com/)
+- [Drizzle ORM Docs](https://orm.drizzle.team/)
+- [Cloudflare D1 Docs](https://developers.cloudflare.com/d1/)
 - [Cloudflare Workers Secrets](https://developers.cloudflare.com/workers/runtime-apis/secrets/)
