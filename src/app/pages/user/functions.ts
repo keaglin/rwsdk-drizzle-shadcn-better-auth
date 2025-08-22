@@ -4,7 +4,7 @@ import { auth } from "@/app/lib/auth";
 import { requestInfo } from "rwsdk/worker";
 
 export async function signUp(data: { email: string; password: string; name: string }) {
-  const { request} = requestInfo
+  const { request } = requestInfo
   try {
     const response = await auth.api.signUpEmail({
       body: {
@@ -14,29 +14,52 @@ export async function signUp(data: { email: string; password: string; name: stri
       },
       headers: request.headers
     });
-    
+
     return { success: true, data: response };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Sign up failed" 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Sign up failed"
     };
   }
 }
 
 export async function signIn(data: { email: string; password: string }) {
-  const { request } = requestInfo
+  const { request, response } = requestInfo
   try {
-    const response = await auth.api.signInEmail({
+    const result = await auth.api.signInEmail({
+      headers: request.headers,
       body: {
         email: data.email,
         password: data.password,
       },
-      headers: request.headers
+      asResponse: true, // Get full response with headers
     });
     
-    return { success: true, data: response };
+    // Get the set-cookie header from Better Auth response
+    const setCookieHeader = result.headers.get('set-cookie');
+    console.log("SignIn setCookieHeader from Better Auth:", setCookieHeader);
+    
+    if (!result.ok) {
+      const error = await result.text();
+      throw new Error(error || 'Sign in failed');
+    }
+    
+    const body = await result.json();
+    console.log('SignIn response body:', body);
+    
+    // Set the cookie header using requestInfo.response.headers
+    if (setCookieHeader) {
+      response.headers.set('Set-Cookie', setCookieHeader);
+    }
+    
+    // Return plain JSON object (not Response)
+    return { 
+      success: true, 
+      user: body 
+    };
   } catch (error) {
+    console.error("Sign in error:", error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : "Sign in failed" 
@@ -52,9 +75,9 @@ export async function signOut() {
     });
     return { success: true };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Sign out failed" 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Sign out failed"
     };
   }
 }
@@ -67,9 +90,9 @@ export async function getSession() {
     });
     return { success: true, data: session };
   } catch (error) {
-    return { 
-      success: false, 
-      error: error instanceof Error ? error.message : "Failed to get session" 
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to get session"
     };
   }
 }
