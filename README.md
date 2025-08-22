@@ -16,7 +16,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 
 ### Prerequisites
 
-- Node.js 24+ and pnpm/npm/bun
+- Node.js 24+ and bun/npm/pnpm
 - Cloudflare account (free tier works)
 - Wrangler CLI (`npm install -g wrangler`)
 
@@ -25,7 +25,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 ```bash
 git clone <your-repo>
 cd rwsdk-drizzle-ba
-pnpm install  # or npm/bun install
+bun install  # or npm/bun install
 ```
 
 ### 2. Environment Setup
@@ -55,7 +55,7 @@ CLOUDFLARE_D1_TOKEN=      # Cloudflare API Token with D1 Permissions
 Create a D1 database:
 
 ```bash
-npx wrangler d1 create my-project-db
+bunx wrangler d1 create my-project-db
 ```
 
 Update `wrangler.jsonc` with the config from wrangler cli. It'll look like this:
@@ -76,19 +76,19 @@ Update `wrangler.jsonc` with the config from wrangler cli. It'll look like this:
 
 ```bash
 # Generate Better Auth schema
-pnpm ba:generate
+bun ba:generate
 
 # Generate Drizzle migrations
-pnpm db:generate
+bun db:generate
 
 # Apply migrations locally
-pnpm migrate:dev
+bun migrate:dev
 ```
 
 ### 5. Start Development Server
 
 ```bash
-pnpm dev
+bun dev
 ```
 
 Visit `http://localhost:5173` to see your app running!
@@ -133,27 +133,27 @@ D1 Database Tables:
 ## Available Scripts
 
 ### Development
-- `pnpm dev` - Start development server with hot reload
-- `pnpm build` - Build for production
-- `pnpm preview` - Preview production build locally
+- `bun dev` - Start development server with hot reload
+- `bun build` - Build for production
+- `bun preview` - Preview production build locally
 
 ### Database Management
-- `pnpm ba:generate` - Generate Better Auth schema
-- `pnpm db:generate` - Generate Drizzle migrations
-- `pnpm db:studio` - Open Drizzle Studio GUI
-- `pnpm migrate:dev` - Apply migrations locally
-- `pnpm migrate:prd` - Apply migrations to production
-- `pnpm migrate:new` - Generate both auth schema and migrations
+- `bun ba:generate` - Generate Better Auth schema
+- `bun db:generate` - Generate Drizzle migrations
+- `bun db:studio` - Open Drizzle Studio GUI
+- `bun migrate:dev` - Apply migrations locally
+- `bun migrate:prd` - Apply migrations to production
+- `bun migrate:new` - Generate both auth schema and migrations
 
 ### Deployment
-- `pnpm release` - Full production deployment (migrations + build + deploy)
-- `pnpm worker:run <file>` - Run scripts in worker context
-- `pnpm seed` - Seed database with initial data
+- `bun release` - Full production deployment (migrations + build + deploy)
+- `bun worker:run <file>` - Run scripts in worker context
+- `bun seed` - Seed database with initial data
 
 ### Utilities
-- `pnpm clean` - Clean build artifacts
-- `pnpm types` - Type check the project
-- `pnpm check` - Run all checks
+- `bun clean` - Clean build artifacts
+- `bun types` - Type check the project
+- `bun check` - Run all checks
 
 ## Project Structure
 
@@ -228,12 +228,12 @@ const allUsers = await db.select().from(user);
 - See [docs/auth-cookie-forwarding.md](docs/auth-cookie-forwarding.md) for server action cookie handling
 
 ### Database Issues
-- Run `pnpm migrate:dev` after schema changes
-- Use `pnpm db:studio` to inspect data
+- Run `bun migrate:dev` after schema changes
+- Use `bun db:studio` to inspect data
 - Check D1 binding in `wrangler.jsonc`
 
 ### Build/Deploy Issues
-- Clear cache with `pnpm clean`
+- Clear cache with `bun clean`
 - Ensure all env vars are set in Cloudflare dashboard
 - Check wrangler logs: `wrangler tail`
 
