@@ -8,6 +8,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 - **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript ORM with D1 database
 - **[Better Auth](https://better-auth.com/)** - Authentication library with session management
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[shadcn](https://ui.shadcn.com)** - Customizable, extendable components that handle many base concerns
 - **[Vite](https://vitejs.dev/)** - Fast build tool and dev server
 - **[Cloudflare D1](https://developers.cloudflare.com/d1/)** - SQLite database at the edge
 
@@ -97,16 +98,14 @@ Visit `http://localhost:5173` to see your app running!
 ### Architecture Overview
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   Browser   │────▶│ RWSDK Worker │────▶│  D1 SQLite  │
-│             │◀────│   (SSR/RSC)  │◀────│  Database   │
-└─────────────┘     └──────────────┘     └─────────────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Better Auth  │
-                    │   Sessions   │
-                    └──────────────┘
+Browser ←→ RWSDK Worker ←→ D1 Database
+           ├─ /api/auth/* (Better Auth handler)
+           ├─ App Routes & Pages
+           └─ Server Actions
+                              
+D1 Database Tables:
+├─ Auth tables (users, sessions, accounts)
+└─ App tables (your schema)
 ```
 
 ### Key Components
@@ -116,12 +115,12 @@ Visit `http://localhost:5173` to see your app running!
 - Handles routing and middleware
 - Serves the Better Auth API endpoints at `/api/auth/*`
 
-#### Authentication (`src/app/lib/auth.ts`)
+#### Authentication (`src/lib/auth.ts`)
 - Better Auth configuration with email/password support
 - Session management with cookies
 - Drizzle adapter for D1 database
 
-#### Database (`src/app/db/`)
+#### Database (`src/db/`)
 - `index.ts` - Database connection and exports
 - `schema.ts` - Your application schemas
 - `auth-schema.ts` - Auto-generated Better Auth tables
@@ -161,22 +160,23 @@ Visit `http://localhost:5173` to see your app running!
 ```
 src/
 ├── worker.tsx           # Main entry point, routes, middleware
+├── db/
+│   ├── index.ts        # Database connection
+│   ├── schema.ts       # Your app schemas
+│   └── auth-schema.ts  # Generated auth tables
+├── lib/
+│   └── auth.ts         # Better Auth configuration
 ├── app/
-│   ├── db/
-│   │   ├── index.ts    # Database connection
-│   │   ├── schema.ts   # Your app schemas
-│   │   └── auth-schema.ts # Generated auth tables
-│   ├── lib/
-│   │   └── auth.ts     # Better Auth configuration
 │   ├── pages/          # Page components
 │   │   └── user/
 │   │       ├── Login.tsx     # Login UI component
 │   │       ├── functions.ts  # Server actions
 │   │       └── routes.ts     # User routes
 │   ├── components/     # Reusable UI components
-│   └── interruptors.ts # Route middleware/guards
-├── scripts/           # Utility scripts
-└── migrations/        # Database migrations (generated)
+│   ├── interruptors.ts # Route middleware/guards
+│   └── Document.tsx    # HTML document wrapper
+├── scripts/            # Utility scripts
+└── migrations/         # Database migrations (generated)
 
 docs/
 └── auth-cookie-forwarding.md  # Cookie handling guide
@@ -213,11 +213,11 @@ export async function myAction() {
 ### Database Queries
 
 ```typescript
-import { db } from "@/app/db";
-import { users } from "@/app/db/schema";
+import { db } from "@/db";
+import { user } from "@/db/schema";
 
 // Query with Drizzle
-const allUsers = await db.select().from(users);
+const allUsers = await db.select().from(user);
 ```
 
 ## Troubleshooting

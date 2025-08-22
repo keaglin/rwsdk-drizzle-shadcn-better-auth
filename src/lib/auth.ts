@@ -1,5 +1,5 @@
-import { db } from "@/app/db";
-import { schema } from "@/app/db";
+import { db } from "@/db";
+import { schema } from "@/db";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 

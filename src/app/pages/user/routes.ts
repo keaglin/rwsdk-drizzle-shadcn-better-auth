@@ -1,6 +1,6 @@
 import { route } from "rwsdk/router";
 import { Login } from "./Login";
-import { auth } from "@/app/lib/auth";
+import { auth } from "@/lib/auth";
 
 export const userRoutes = [
   route("/login", [Login]),

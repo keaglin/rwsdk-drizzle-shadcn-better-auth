@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/app/lib/auth";
+import { auth } from "@/lib/auth";
 import { requestInfo } from "rwsdk/worker";
 
 export async function signUp(data: { email: string; password: string; name: string }) {

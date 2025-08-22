@@ -4,7 +4,7 @@ import { Document } from "@/app/Document";
 import { Home } from "@/app/pages/Home";
 import { setCommonHeaders } from "@/app/headers";
 import { userRoutes } from "@/app/pages/user/routes";
-import { auth } from "@/app/lib/auth";
+import { auth } from "@/lib/auth";
 import { requireAuth } from "./app/interruptors";
 
 export interface AppContext {
@@ -60,6 +60,14 @@ export default defineApp([
   //     console.log("Error getting session:", error);
   //   }
   // },
+  route("/api/auth/*", async ({ request }) => {
+    console.log("=== Better Auth Route Hit ===");
+    console.log("URL:", request.url);
+    console.log("Method:", request.method);
+    console.log("Headers:", Object.fromEntries(request.headers.entries()));
+
+    return auth.handler(request);
+  }),
   render(Document, [
     route("/", () => new Response("Hello, World!")),
     route("/protected", [requireAuth, Home]),

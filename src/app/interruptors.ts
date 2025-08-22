@@ -1,11 +1,14 @@
-import { auth } from "@/app/lib/auth";
-import { env } from "cloudflare:workers";
-import type { User } from "@/app/db";
+import { auth } from "@/lib/auth";
+import type { User } from "@/db";
 import { AppContext } from "@/worker";
 
 // Authentication interruptor - adds user session to context
 export async function requireAuth({ request, ctx }: { request: Request; ctx: AppContext }) {
+  console.log('[requireAuth] ctx:', ctx);
   try {
+    // console.log('[requireAuth] Request headers:', Object.fromEntries(request.headers.entries()));
+    console.log('[requireAuth] Cookies:', request.headers.get('cookie'));
+    
     const session = await auth.api.getSession({ headers: request.headers });
     console.log('[requireAuth] session data', session)
 
@@ -18,6 +21,7 @@ export async function requireAuth({ request, ctx }: { request: Request; ctx: App
 
     // Add user to context for use in route handlers
     ctx.user = session.user as User;
+    console.log('[requireAuth] ctx.user after assignment:', ctx);
 
   } catch (error) {
     console.error("Auth interruptor error:", error);
