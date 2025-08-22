@@ -1,4 +1,4 @@
-# RWSDK + Drizzle + Better Auth Starter
+# RWSDK + shadcn + Drizzle + Better Auth Starter
 
 A modern full-stack starter template featuring server-side rendering, React Server Components, authentication, and database integration on Cloudflare Workers.
 
