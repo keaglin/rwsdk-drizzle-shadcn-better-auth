@@ -36,10 +36,13 @@ export function Login() {
         }
       } else {
         const result = await signIn({ email, password });
+        console.log("SignIn result:", result);
         if (result.success) {
           setSuccess("Signed in successfully!");
-          // Redirect or update UI as needed
-          window.location.href = "/";
+          // Redirect after successful login
+          setTimeout(() => {
+            window.location.href = "/protected";
+          }, 500);
         } else {
           setError(result.error || "Sign in failed");
         }
