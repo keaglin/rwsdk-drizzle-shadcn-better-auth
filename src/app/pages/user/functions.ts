@@ -2,36 +2,77 @@
 
 import { auth } from "@/lib/auth";
 import { requestInfo } from "rwsdk/worker";
+import { signUpSchema, signInSchema } from "@/lib/validation/auth";
+import { validate } from "@/lib/validation";
 
-export async function signUp(data: { email: string; password: string; name: string }) {
-  const { request } = requestInfo
+export async function signUp(data: unknown) {
+  const validation = validate(signUpSchema, data);
+  
+  if (!validation.success) {
+    return {
+      success: false,
+      errors: validation.errors,
+      error: validation.message
+    };
+  }
+
+  const { email, password, name } = validation.data;
+  const { request } = requestInfo;
+  
   try {
     const response = await auth.api.signUpEmail({
       body: {
-        email: data.email,
-        password: data.password,
-        name: data.name,
+        email,
+        password,
+        name,
       },
       headers: request.headers
     });
 
     return { success: true, data: response };
   } catch (error) {
+    console.error("Sign up error:", error);
+    
+    // Parse Better Auth error responses
+    let errorMessage = "Sign up failed";
+    if (error instanceof Error) {
+      try {
+        // Try to parse JSON error from Better Auth
+        const errorData = JSON.parse(error.message);
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {
+        // If not JSON, use the error message as-is
+        errorMessage = error.message;
+      }
+    }
+    
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Sign up failed"
+      error: errorMessage
     };
   }
 }
 
-export async function signIn(data: { email: string; password: string }) {
-  const { request, response } = requestInfo
+export async function signIn(data: unknown) {
+  const validation = validate(signInSchema, data);
+  
+  if (!validation.success) {
+    return {
+      success: false,
+      errors: validation.errors,
+      error: validation.message
+    };
+  }
+
+  const { email, password } = validation.data;
+  const { request, response } = requestInfo;
+  
   try {
     const result = await auth.api.signInEmail({
       headers: request.headers,
       body: {
-        email: data.email,
-        password: data.password,
+        email,
+        password,
       },
       asResponse: true, // Get full response with headers
     });
@@ -60,9 +101,23 @@ export async function signIn(data: { email: string; password: string }) {
     };
   } catch (error) {
     console.error("Sign in error:", error);
+    
+    // Parse Better Auth error responses
+    let errorMessage = "Sign in failed";
+    if (error instanceof Error) {
+      try {
+        // Try to parse JSON error from Better Auth
+        const errorData = JSON.parse(error.message);
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {
+        // If not JSON, use the error message as-is
+        errorMessage = error.message;
+      }
+    }
+    
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : "Sign in failed" 
+      error: errorMessage
     };
   }
 }
