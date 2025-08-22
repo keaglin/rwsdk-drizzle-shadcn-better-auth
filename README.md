@@ -8,7 +8,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 - **[Drizzle ORM](https://orm.drizzle.team/)** - TypeScript ORM with D1 database
 - **[Better Auth](https://better-auth.com/)** - Authentication library with session management
 - **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[shadcn](https://ui.shadcn.com)** - Customizable, extendable components that handle many base concerns
+- **[shadcn/ui](https://ui.shadcn.com)** - Copy-paste React components built on Radix UI and Tailwind
 - **[Vite](https://vitejs.dev/)** - Fast build tool and dev server
 - **[Cloudflare D1](https://developers.cloudflare.com/d1/)** - SQLite database at the edge
 
@@ -16,7 +16,7 @@ A modern full-stack starter template featuring server-side rendering, React Serv
 
 ### Prerequisites
 
-- Node.js 18+ and pnpm/npm/bun
+- Node.js 24+ and pnpm/npm/bun
 - Cloudflare account (free tier works)
 - Wrangler CLI (`npm install -g wrangler`)
 
