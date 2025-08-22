@@ -12,7 +12,7 @@
     "release": "rw-scripts ensure-deploy-env && npm run clean && bun migrate:new && bun migrate:prd && RWSDK_DEPLOY=1 npm run build && wrangler deploy",
     "clean": "npm run clean:vite",
     "clean:vite": "rm -rf ./node_modules/.vite",
-    "ba:generate": "npx @better-auth/cli@latest generate --config src/app/lib/auth-cli.ts --output src/app/db/auth-schema.ts",
+    "ba:generate": "npx @better-auth/cli@latest generate --config src//lib/auth-cli.ts --output src/app/db/auth-schema.ts",
     "db:generate": "rw-scripts ensure-env && bun --bun drizzle-kit generate && wrangler types",
     "db:studio": "drizzle-kit studio",
     "migrate:new": "bun ba:generate && bun db:generate",
@@ -35,7 +35,8 @@
     "lucide-react": "^0.540.0",
     "rwsdk": "0.1.36",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.12"
+    "tailwindcss": "^4.1.12",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.7.4",
