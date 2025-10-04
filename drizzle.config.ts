@@ -1,6 +1,6 @@
 import { defineConfig } from 'drizzle-kit';
-import { readFileSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { Glob } from 'bun';
+import { readFileSync } from 'node:fs';
 
 const isLocal = process.env.NODE_ENV === 'development' || !process.env.CLOUDFLARE_D1_TOKEN;
 
@@ -10,34 +10,26 @@ if (!isLocal && (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_D
 
 function getLocalD1Database(): string {
   try {
-    const dbDir = '.wrangler/state/v3/d1/miniflare-D1DatabaseObject';
+    const glob = new Glob('.wrangler/state/v3/d1/miniflare-D1DatabaseObject/*.sqlite');
     
-    // Read directory and filter for .sqlite files
-    const files = readdirSync(dbDir)
-      .filter(file => file.endsWith('.sqlite'))
-      .map(file => join(dbDir, file));
-    
-    console.log(`Found ${files.length} .sqlite files in ${dbDir}`);
+    // Scan for .sqlite files in the directory
+    const files = Array.from(glob.scanSync('.'));
+    console.log(`Found ${files.length} .sqlite files in cwd`);
     
     if (files.length === 0) {
-      throw new Error(`.sqlite file not found in ${dbDir}`);
+      throw new Error(`.sqlite file not found in cwd`);
     }
 
     const dbFile = files[0];
     console.log(`Using local D1 database file: ${dbFile}`);
-    
+
     if (!dbFile) {
-      throw new Error(`No .sqlite file found in ${dbDir}`);
+      throw new Error(`No .sqlite file found in cwd`);
     }
 
+    console.log(`Found local D1 database at: ${dbFile}`);
 
-    // Convert to absolute path and then to file URL
-    const absolutePath = join(process.cwd(), dbFile);
-    const url = `file://${absolutePath}`;
-    
-    console.log(`Found local D1 database at: ${url}`);
-    
-    return url;
+    return dbFile;
   } catch (err) {
     console.log(`No sqlite files found: ${err}`);
     // Return the expected path based on wrangler.jsonc database_id
@@ -55,11 +47,10 @@ function getLocalD1Database(): string {
     
     const databaseId = wranglerConfig.d1_databases?.[0]?.database_id;
     if (databaseId) {
-      const expectedPath = join(process.cwd(), `.wrangler/state/v3/d1/miniflare-D1DatabaseObject/${databaseId}.sqlite`);
-      const expectedUrl = `file://${expectedPath}`;
-      console.log(`Local D1 database will be created at: ${expectedUrl}`);
+      const expectedPath = `.wrangler/state/v3/d1/miniflare-D1DatabaseObject/${databaseId}.sqlite`;
+      console.log(`Local D1 database will be created at: ${expectedPath}`);
       console.log('Run "wrangler d1 migrations apply DB --local" or start the dev server to create it.');
-      return expectedUrl;
+      return expectedPath;
     }
     
     throw new Error('Unable to determine local D1 database path');
@@ -69,7 +60,7 @@ function getLocalD1Database(): string {
 const config = isLocal 
   ? {
       out: './drizzle',
-      schema: ['./src/app/db/schema.ts'],
+      schema: ['./src/db/schema.ts'],
       dialect: 'sqlite' as const,
       dbCredentials: {
         url: getLocalD1Database(),
@@ -79,7 +70,7 @@ const config = isLocal
     }
   : {
       out: './drizzle',
-      schema: ['./src/app/db/schema.ts'],
+      schema: ['./src/db/schema.ts'],
       dialect: 'sqlite' as const,
       driver: 'd1-http' as const,
       dbCredentials: {
