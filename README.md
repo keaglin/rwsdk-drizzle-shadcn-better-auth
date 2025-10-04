@@ -273,6 +273,21 @@ const allUsers = await db.select().from(user);
 - Ensure all env vars are set in Cloudflare dashboard
 - Check wrangler logs: `wrangler tail`
 
+## Docker Support
+
+This project includes Docker support for containerized deployment outside of Cloudflare:
+
+```bash
+# Build and run with docker-compose (includes Valkey + MinIO)
+docker-compose up --build
+
+# Or build just the app
+docker build -t my-app .
+docker run -p 3000:3000 my-app
+```
+
+See [docs/cloudflare-migration.md](docs/cloudflare-migration.md) for a complete guide on migrating from Cloudflare to self-hosted infrastructure with service alternatives (D1 → SQLite, KV → Valkey, R2 → MinIO, etc.).
+
 ## Resources
 
 - [RWSDK Documentation](https://docs.rwsdk.com/)
