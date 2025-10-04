@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { admin, username, anonymous } from "better-auth/plugins";
-import * as schema from "@/app/db/schema";
+import * as schema from "@/db/schema";
 
 export const auth = betterAuth({
     baseURL: "http://localhost:5173",
