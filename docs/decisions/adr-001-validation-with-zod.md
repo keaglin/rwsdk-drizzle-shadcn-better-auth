@@ -1,7 +1,9 @@
-# ADR-001: Using Zod for Runtime Validation
+---
+status: accepted
+date: 2025-08-22
+---
 
-## Status
-Accepted
+# ADR-001: Using Zod for Runtime Validation
 
 ## Context
 We need runtime validation for:

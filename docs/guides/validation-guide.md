@@ -1,3 +1,8 @@
+---
+created: 2025-08-22
+updated: 2025-08-22
+---
+
 # Validation Guide
 
 This project uses [Zod](https://zod.dev/) for runtime validation of user input and data schemas.

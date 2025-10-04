@@ -1,7 +1,9 @@
-# ADR-002: Data Access Patterns - Lean Server Actions
+---
+status: accepted
+date: 2025-08-22
+---
 
-## Status
-Accepted
+# ADR-002: Data Access Patterns - Lean Server Actions
 
 ## Context
 With RPC-style server actions and Drizzle ORM, we need to decide on our data access architecture:

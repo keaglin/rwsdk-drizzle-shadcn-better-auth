@@ -1,3 +1,8 @@
+---
+created: 2025-08-22
+updated: 2025-08-22
+---
+
 # Authentication Cookie Forwarding in RWSDK
 
 ## Problem

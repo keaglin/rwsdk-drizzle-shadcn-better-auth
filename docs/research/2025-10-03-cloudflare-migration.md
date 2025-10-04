@@ -1,3 +1,8 @@
+---
+date: 2025-10-03
+tags: [cloudflare, migration, self-hosted, bun, infrastructure]
+---
+
 # Cloudflare to Self-Hosted Migration Guide
 
 ## Overview
