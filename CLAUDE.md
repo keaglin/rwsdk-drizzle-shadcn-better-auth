@@ -5,6 +5,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 This is a full-stack application built on Cloudflare Workers using RWSDK (React framework with SSR/RSC), Drizzle ORM with D1 database, Better Auth for authentication, and Zod for validation.
 
+## Documentation
+
+Project documentation is organized in `docs/` with a structured, domain-driven system:
+
+- **[docs/README.md](docs/README.md)** - Documentation overview and navigation
+- **[docs/INDEX.md](docs/INDEX.md)** - Living catalog of key documents
+- **[docs/decisions/](docs/decisions/)** - Architecture Decision Records (ADRs)
+- **[docs/features/](docs/features/)** - Feature specifications and roadmap
+- **[docs/architecture/](docs/architecture/)** - System design and technical architecture
+- **[docs/design/](docs/design/)** - UI/UX design system and component specs
+- **[docs/guides/](docs/guides/)** - How-to guides and troubleshooting
+- **[docs/research/](docs/research/)** - Research notes and explorations
+- **[docs/drafts/](docs/drafts/)** - Work-in-progress documentation
+
+Each directory contains an `index.md` explaining what belongs there, frontmatter conventions, and document lifecycle. When creating documentation, check the appropriate directory's `index.md` for guidelines.
+
 ## Essential Commands
 
 ### Development
